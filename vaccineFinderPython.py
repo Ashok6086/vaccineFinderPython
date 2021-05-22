@@ -19,8 +19,9 @@ districts = ["581","571","305","265"]
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Ch$ko) Chrome/90.0.4430.93 Safari/537.36"}
 for dist in districts:
     PARAMS = {'district_id':dist,'date':today}
-    respone = requests.get(url, params = PARAMS, headers = headers)
-    responseData = respone.json()
+    response = requests.get(url, params = PARAMS, headers = headers)
+    print(response.reason)
+    responseData = response.json()
     y = json.dumps(responseData)
     serviceData = json.loads(y)
     count = 0
@@ -42,14 +43,19 @@ for dist in districts:
                 botemoji = u'\U0001F916' 
                 linkemoji = u'\U0001F517'
                 mess = '<b>Available Date: </b>'+availableDate+'\n<b>Slots Available (Dose1): </b>'+noofslotsdose1+'\n<b>Slots Available (Dose2): </b>'+noofslotsdose2+'\n<b>Vaccine Type: </b>'+vaccineType+'\n<b>Center Name: </b>'+centerName+'\n<b>Center Address: </b>'+ centerAddress+'\n\n'+linkemoji+'\n\n'+ link
-                #FIXME: change to current dir to adapt to different systems
                 directory = '/home/pi/vaccineFinder/data/'+today+'/'
                 try:
                     if not os.path.exists(directory):
                         os.makedirs(directory)
                     with open(directory+session["session_id"]+'_data.txt') as json_file:
                         data = json.load(json_file)
-                    if sorted(session.items()) == sorted(data.items()):
+                        print(data)
+                    a, b = json.dumps(session, sort_keys=True), json.dumps(data, sort_keys=True)
+                    print("session_id => "+session["session_id"])
+                    print("a => "+a)
+                    print("***************")
+                    print("b => "+b)
+                    if a == b:
                         print("Same response, skipping send message")
                         continue
                 except OSError as e:
@@ -64,3 +70,4 @@ for dist in districts:
                     bot = telegram.Bot(token=my_token)
                     bot.sendMessage(chat_id=chatids[dist], text=mess, parse_mode=ParseMode.HTML)
                     
+
